@@ -57,8 +57,9 @@ class ModelSelection:
         """
         # If there is missing data :
         if self.data.isnull().sum().sum():
-            na_choice = input('Data is incomplete. Do you want to drop rows with missing data?\n'
-                              '(all will be removed.) \n')  # Missing values where?
+            na_choice = input(
+                'Data is incomplete. Do you want to drop rows with missing data?\n'
+                '(all will be removed.) \n')  # Missing values where?
             if na_choice.upper() == 'Y':
                 self.data = self.data.dropna()
                 print('Incomplete rows have been deleted. \n'
@@ -72,7 +73,8 @@ class ModelSelection:
         for col in self.X:
             if self.X[col].dtype == 'object':
                 while True:
-                    choice = input('X values are\'nt numerical, do you want to convert them? (y/n)\n')
+                    choice = input(
+                        'X values are\'nt numerical, do you want to convert them? (y/n)\n')
                     if choice.upper() == 'Y':
                         num_df = self.X.select_dtypes(exclude="object")
                         str_df = self.X.select_dtypes(include="object")
@@ -99,7 +101,12 @@ class ModelSelection:
         import seaborn as sns
 
         if self.regressor:
-            sns.histplot(data=self.data, x=pd.DataFrame(self.y).columns[0], bins=25, kde=True)
+            sns.histplot(
+                data=self.data,
+                x=pd.DataFrame(
+                    self.y).columns[0],
+                bins=25,
+                kde=True)
             plt.title(f'{pd.DataFrame(self.y).columns[0]} distribution')
             plt.show()
         else:
@@ -129,10 +136,12 @@ class ModelSelection:
                 self.regressor = False
                 break
             elif 'R' == choice.upper():
-                if self.y.dtype == 'object':  # Only catches dfs that have not been digitalized.
-                    change_choice = input('Regression cannot be performed on data '
-                                          'with object type y values. '
-                                          '\nDo you want a classifier model instead?\n')
+                # Only catches dfs that have not been digitalized.
+                if self.y.dtype == 'object':
+                    change_choice = input(
+                        'Regression cannot be performed on data '
+                        'with object type y values. '
+                        '\nDo you want a classifier model instead?\n')
                     if change_choice.upper() == 'Y':
                         self.regressor = False
                     else:
@@ -172,7 +181,8 @@ class ModelSelection:
         # Polynomial Regression
         if self.regressor:
             from sklearn.preprocessing import PolynomialFeatures
-            polynomial_converter = PolynomialFeatures(degree=3, include_bias=False)
+            polynomial_converter = PolynomialFeatures(
+                degree=3, include_bias=False)
             self.X = polynomial_converter.fit_transform(self.X)
 
         # Splitting
@@ -305,11 +315,17 @@ class ModelSelection:
                                        self.X_train, self.y_train)
         ridge_model = self.grid_model(Ridge(), grids['ridge'],
                                       self.X_train, self.y_train)
-        lasso_model = self.grid_model(LassoCV(eps=0.1, n_alphas=100), grids['lasso'],
-                                      self.X_train, self.y_train)
+        lasso_model = self.grid_model(
+            LassoCV(
+                eps=0.1,
+                n_alphas=100),
+            grids['lasso'],
+            self.X_train,
+            self.y_train)
         elasticnet_model = self.grid_model(ElasticNetCV(l1_ratio=[.1, .5, .7, .9, .95, .99, 1], tol=0.01),
                                            grids['elasticnet'], self.X_train, self.y_train)
-        svr_model = self.grid_model(SVR(), grids['svr'], self.X_train, self.y_train)
+        svr_model = self.grid_model(
+            SVR(), grids['svr'], self.X_train, self.y_train)
 
         # Reporting model information
         models = [linear_model,
@@ -321,12 +337,19 @@ class ModelSelection:
 
         # Finding right model
         # We want a low RMSE and a high r2 score. to take both into account,
-        # we can subtract the r2-score from RMSE and then find the lowest nr as the best.
-        score_list = [self.get_rmse(linear_model) - self.get_r2_score(linear_model),
-                      self.get_rmse(ridge_model) - self.get_r2_score(ridge_model),
-                      self.get_rmse(lasso_model) - self.get_r2_score(lasso_model),
-                      self.get_rmse(elasticnet_model) - self.get_r2_score(elasticnet_model),
-                      self.get_rmse(svr_model) - self.get_r2_score(svr_model)]
+        # we can subtract the r2-score from RMSE and then find the lowest nr as
+        # the best.
+        score_list = [
+            self.get_rmse(linear_model) -
+            self.get_r2_score(linear_model),
+            self.get_rmse(ridge_model) -
+            self.get_r2_score(ridge_model),
+            self.get_rmse(lasso_model) -
+            self.get_r2_score(lasso_model),
+            self.get_rmse(elasticnet_model) -
+            self.get_r2_score(elasticnet_model),
+            self.get_rmse(svr_model) -
+            self.get_r2_score(svr_model)]
 
         # Print decision based on score
         for i, scores in enumerate(score_list, start=0):
@@ -355,7 +378,7 @@ class ModelSelection:
         print(classification_report(y_true=self.y_test, y_pred=y_pred))
         ConfusionMatrixDisplay.from_estimator(model, self.X_test, self.y_test)
         plt.title(f'{model.estimator}')
-        # plt.show()
+        plt.show()
 
         # Show accuracy and best parameters
         acc = round(accuracy_score(y_true=self.y_test, y_pred=y_pred), 2)
@@ -383,9 +406,18 @@ class ModelSelection:
                  'svc': {'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
                          'gamma': ['scale', 'auto']}}
 
-        logistic_model = self.grid_model(LogisticRegression(), grids['logistic'], self.X_train, self.y_train)
-        KNN_model = self.grid_model(KNeighborsClassifier(), grids['knn'], self.X_train, self.y_train)
-        SVC_model = self.grid_model(SVC(), grids['svc'], self.X_train, self.y_train)
+        logistic_model = self.grid_model(
+            LogisticRegression(),
+            grids['logistic'],
+            self.X_train,
+            self.y_train)
+        KNN_model = self.grid_model(
+            KNeighborsClassifier(),
+            grids['knn'],
+            self.X_train,
+            self.y_train)
+        SVC_model = self.grid_model(
+            SVC(), grids['svc'], self.X_train, self.y_train)
 
         models = [logistic_model, KNN_model, SVC_model]
 
