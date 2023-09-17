@@ -11,7 +11,7 @@ See requirements.txt (generated)
 ## Bugs:
 -   Algorithm cannot identify digitalized files that should be used for classification. Only flag for classification-type files is occurence of dtype == 'object' in dependant label column.
 
-## Updates 1.01:
+## Updates 1.01 ONGOING:
 -   Creating test-classes
 -   Improved system layout
     -   Introduced GitHub
