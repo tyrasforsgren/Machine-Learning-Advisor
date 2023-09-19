@@ -18,14 +18,25 @@ class ModelSelection:
     Saves model.
     """
 
-    def __init__(self, path) -> None:
+    def __init__(self) -> None:
         self.regressor = None
+        self.data = None
+        self.X = None
+        self.y = None
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+
+    def load_data(self, path):
         self.data = pd.read_csv(path)
         self.X, self.y = self.set_values()
         self.complete_data()
+
+    def initialize_model(self):
         self.choose_model()
-        self.data_report()
-        self.X_train, self.X_test, self.y_train, self.y_test = self.preprocess()
+        self.X_train, self.X_test,
+        self.y_train, self.y_test = self.preprocess()
         if self.regressor:
             self.calc_ideal_regression_model()
         else:
@@ -135,7 +146,7 @@ class ModelSelection:
             if 'C' == choice.upper():
                 self.regressor = False
                 break
-            elif 'R' == choice.upper():
+            if 'R' == choice.upper():
                 # Only catches dfs that have not been digitalized.
                 if self.y.dtype == 'object':
                     change_choice = input(
