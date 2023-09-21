@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sys
 import matplotlib.pyplot as plt
 
 
@@ -28,21 +29,20 @@ class ModelSelection:
         self.y_train = None
         self.y_test = None
 
-    def load_data(self, path):
+    def load_data(self, path): # T
         self.data = pd.read_csv(path)
         self.X, self.y = self.set_values()
         self.complete_data()
 
-    def initialize_model(self):
+    def initialize_model(self): # T
         self.choose_model()
-        self.X_train, self.X_test,
-        self.y_train, self.y_test = self.preprocess()
+        self.X_train, self.X_test,self.y_train, self.y_test = self.preprocess()
         if self.regressor:
             self.calc_ideal_regression_model()
         else:
             self.calc_ideal_classification_model()
 
-    def set_values(self):
+    def set_values(self): # T
         """
         Takes desired targets.
         Checks if it is valid.
@@ -58,7 +58,7 @@ class ModelSelection:
             else:
                 print('Target not in column list.')
 
-    def complete_data(self):
+    def complete_data(self) :# T
         """
         Checks werther data is ready for ML model.
         Reports eventual issues.
@@ -134,7 +134,7 @@ class ModelSelection:
         plt.xticks(rotation=30)
         plt.show()
 
-    def choose_model(self):
+    def choose_model(self): # T
         """
         Reads desired model type.
         WIP : Evaluates if it is possible.
@@ -162,7 +162,7 @@ class ModelSelection:
             else:
                 print('Invalid choice')
 
-    def confirm_model_choice(self, chosen_model):
+    def confirm_model_choice(self, chosen_model): # T
         """
         Asks if user is happy with recommended model.
         Parameters:
@@ -175,6 +175,7 @@ class ModelSelection:
                            'and want to save it ? (y/n)\n')
             if choice.upper() == 'Y':
                 self.save_model(chosen_model)
+                break
             elif choice.upper() == 'N':
                 exit()
             else:
@@ -210,7 +211,7 @@ class ModelSelection:
         return X_train, X_test, y_train, y_test
 
     @staticmethod
-    def save_model(chosen_model):
+    def save_model(chosen_model): # T
         """
         Saves final model with given filename.
         Parameters:
@@ -222,8 +223,9 @@ class ModelSelection:
             filename = input('Choose filename (.joblib type) :\n')
             if filename[-7:] == '.joblib':
                 dump(chosen_model, filename)
-                exit()
+                break
             print('Invalid filename. Must end with \'.joblib\'')
+        sys.exit()
 
     @staticmethod
     def grid_model(base_model, param_grid, X_train, y_train):
