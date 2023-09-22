@@ -181,7 +181,7 @@ class ModelSelection:
             else:
                 print('Invalid input.')
 
-    def preprocess(self):
+    def preprocess(self): # T
         """
         Preprocess for ML models.
         Performs polynomial regression.
@@ -228,7 +228,7 @@ class ModelSelection:
         sys.exit()
 
     @staticmethod
-    def grid_model(base_model, param_grid, X_train, y_train):
+    def grid_model(base_model, param_grid, X_train, y_train): # T
         """
         Creates an ML model with ideal parameters by using
         GridSearchCV. Trains and returns this model.

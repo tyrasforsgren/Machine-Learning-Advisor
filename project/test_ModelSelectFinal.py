@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
 import unittest
+from sklearn.linear_model import LinearRegression, LogisticRegression
+
 from unittest.mock import patch, Mock
+
 
 from ModelSelectFinal import ModelSelection
 
@@ -17,6 +20,11 @@ class TestModelSelection(unittest.TestCase):
         self.test_instance.X = self.test_instance.data.drop(columns=['target'])
         self.test_instance.y = self.test_instance.data['target']
 
+        self.reg_test_model = LinearRegression()
+        self.class_test_model = LogisticRegression() 
+        self.test_instance.X_train, self.test_instance.X_test,\
+            self.test_instance.y_train, self.test_instance.y_test = self.test_instance.preprocess()
+    
     def tearDown(self) -> None:
         self.test_instance = None
 
@@ -146,6 +154,7 @@ class TestModelSelection(unittest.TestCase):
                     self.test_instance.confirm_model_choice(None)
                     mock_exit.assert_called_once()
     
+    # preprocess()
     def test_preprocess_regression(self):
         # Set up your test instance and set the regressor flag to True
         self.test_instance.regressor = True
@@ -201,6 +210,7 @@ class TestModelSelection(unittest.TestCase):
         self.assertTrue(self.test_instance.y_train is not None)
         self.assertTrue(self.test_instance.y_test is not None)
         # You can also check if the mock functions were called with the correct arguments
+
     # save_model()
     def test_save_model_invalid_valid(self):
         # Define a mock model for testing
@@ -218,7 +228,7 @@ class TestModelSelection(unittest.TestCase):
         # Assert that the print method was called with the expected error message
         mock_print.assert_called_with('Invalid filename. Must end with \'.joblib\'')
 
-
+    # grid_model()
     def test_grid_model(self):
         # Create an instance of ModelSelection
         model_selection = ModelSelection()
@@ -247,6 +257,41 @@ class TestModelSelection(unittest.TestCase):
 
             # Assert that the grid_model method returns the fit result of GridSearchCV
             self.assertEqual(grid_model, mock_fit)
+
+    # get_ ...
+    def test_get_mae(self) -> None:
+        from sklearn.metrics import mean_absolute_error
+        self.reg_test_model.fit(self.test_instance.X_train,self.test_instance.y_train)
+        test_pred = self.reg_test_model.predict(self.test_instance.X_test)
+
+        expected_output = mean_absolute_error(self.test_instance.y_test,test_pred)
+
+        with patch ('sklearn.linear_model.LinearRegression.predict', return_value=(test_pred)) as mock_predict:
+            test_output = self.test_instance.get_mae(self.reg_test_model)
+
+        self.assertEqual(expected_output,test_output)
+        mock_predict.assert_called_once_with(self.test_instance.X_test)
+
+    def test_get_rmse(self):
+        from sklearn.metrics import mean_squared_error
+        self.reg_test_model.fit(self.test_instance.X_train,self.test_instance.y_train)
+        test_pred = self.reg_test_model.predict(self.test_instance.X_test)
+
+        expected_output = np.sqrt(mean_squared_error(self.test_instance.y_test,test_pred))
+
+        with patch ('sklearn.linear_model.LinearRegression.predict', return_value=(test_pred)) as mock_predict:
+            test_output = self.test_instance.get_rmse(self.reg_test_model)
+
+        self.assertEqual(expected_output,test_output)
+        mock_predict.assert_called_once_with(self.test_instance.X_test)
+
+    def get_r2_score(self) -> None:
+        self.reg_test_model.fit(self.test_instance.X_train,self.test_instance.y_train)
+
+        expected_output = self.reg_test_model.score(self.test_instance.X_test,self.test_instance.y_test)
+
+        test_output = self.test_instance.get_r2_score(self.reg_test_model)
+        self.assertEqual(expected_output,test_output)
 
 if __name__ == '__main__':
     unittest.main()
