@@ -247,7 +247,7 @@ class ModelSelection:
 
         return grid_model
 
-    def get_rmse(self, model):
+    def get_rmse(self, model): # T
         """
         returns RMSE error for passed model.
         Parameters:
@@ -259,7 +259,7 @@ class ModelSelection:
         RMSE = np.sqrt(mean_squared_error(self.y_test, test_predictions))
         return RMSE
 
-    def get_mae(self, model):
+    def get_mae(self, model): # T
         """
         returns MAE error for passed model.
         Parameters:
@@ -270,7 +270,7 @@ class ModelSelection:
         MAE = mean_absolute_error(self.y_test, test_predictions)
         return MAE
 
-    def get_r2_score(self, model):
+    def get_r2_score(self, model): # T
         """
         returns r2score error for passed model.
         Parameters:

@@ -155,61 +155,36 @@ class TestModelSelection(unittest.TestCase):
                     mock_exit.assert_called_once()
     
     # preprocess()
-    def test_preprocess_regression(self):
-        # Set up your test instance and set the regressor flag to True
+    def test_preprocess_regression(self) -> None:
         self.test_instance.regressor = True
-        X_train = np.array([[1, 2], [3, 4], [5, 6]])
-        X_test = np.array([[7, 8], [9, 10]])
-        y_train = np.array([0, 1, 0])
-        y_test = np.array([1, 0])
-        # Mock the necessary functions and methods
-        with patch('sklearn.preprocessing.PolynomialFeatures') as mock_poly:
-            with patch('sklearn.model_selection.train_test_split') as mock_split:
-                with patch('sklearn.preprocessing.StandardScaler') as mock_scaler:
-                    # Set the return values for the mock functions
-                    mock_poly_instance = mock_poly.return_value
-                    mock_split.return_value = (X_train, X_test, y_train, y_test)  # Replace with your data
-                    mock_scaler_instance = mock_scaler.return_value
-
-                    # Call the preprocess method
-                    self.test_instance.preprocess()
-        self.test_instance.X_train = X_train
-        self.test_instance.X_test = X_test
-        self.test_instance.y_train = y_train
-        self.test_instance.y_test = y_test
-        # Add your assertions here, for example:
-        self.assertTrue(self.test_instance.X_train is not None)
-        self.assertTrue(self.test_instance.X_test is not None)
-        self.assertTrue(self.test_instance.y_train is not None)
-        self.assertTrue(self.test_instance.y_test is not None)
-        # You can also check if the mock functions were called with the correct arguments
-
-    def test_preprocess_classification(self):
-        # Set up your test instance and set the regressor flag to False
-        self.test_instance.regressor = False
-        X_train = np.array([[1, 2], [3, 4], [5, 6]])
-        X_test = np.array([[7, 8], [9, 10]])
-        y_train = np.array([0, 1, 0])
-        y_test = np.array([1, 0])
-        # Mock the necessary functions and methods for classification
         with patch('sklearn.model_selection.train_test_split') as mock_split:
             with patch('sklearn.preprocessing.StandardScaler') as mock_scaler:
-                # Set the return values for the mock functions
-                mock_split.return_value = (X_train, X_test, y_train, y_test)  # Replace with your data
+                mock_split.return_value = (
+                    self.test_instance.X_train, self.test_instance.X_test,
+                    self.test_instance.y_train, self.test_instance.y_test)
                 mock_scaler_instance = mock_scaler.return_value
 
                 # Call the preprocess method
                 self.test_instance.preprocess()
-        self.test_instance.X_train = X_train
-        self.test_instance.X_test = X_test
-        self.test_instance.y_train = y_train
-        self.test_instance.y_test = y_test
-        # Add your assertions here, for example:
+
+        # Assertions
         self.assertTrue(self.test_instance.X_train is not None)
         self.assertTrue(self.test_instance.X_test is not None)
         self.assertTrue(self.test_instance.y_train is not None)
         self.assertTrue(self.test_instance.y_test is not None)
-        # You can also check if the mock functions were called with the correct arguments
+
+        # Check if train_test_split is called correctly
+        mock_split.assert_called_once_with(
+            self.test_instance.X, self.test_instance.y, test_size=0.3, random_state=101)
+
+        # Check if StandardScaler is called correctly
+        mock_scaler_instance.fit.assert_called_once_with(self.test_instance.X_train)
+
+        # Check if transform is called for X_train and X_test
+        mock_scaler_instance.transform.assert_has_calls([
+            unittest.mock.call(self.test_instance.X_train),
+            unittest.mock.call(self.test_instance.X_test)
+        ])
 
     # save_model()
     def test_save_model_invalid_valid(self):
@@ -258,7 +233,7 @@ class TestModelSelection(unittest.TestCase):
             # Assert that the grid_model method returns the fit result of GridSearchCV
             self.assertEqual(grid_model, mock_fit)
 
-    # get_ ...
+    # get_ ... MAE,RMSE,r2Score
     def test_get_mae(self) -> None:
         from sklearn.metrics import mean_absolute_error
         self.reg_test_model.fit(self.test_instance.X_train,self.test_instance.y_train)
@@ -285,13 +260,36 @@ class TestModelSelection(unittest.TestCase):
         self.assertEqual(expected_output,test_output)
         mock_predict.assert_called_once_with(self.test_instance.X_test)
 
-    def get_r2_score(self) -> None:
+    def test_get_r2_score(self) -> None:
         self.reg_test_model.fit(self.test_instance.X_train,self.test_instance.y_train)
 
         expected_output = self.reg_test_model.score(self.test_instance.X_test,self.test_instance.y_test)
 
         test_output = self.test_instance.get_r2_score(self.reg_test_model)
         self.assertEqual(expected_output,test_output)
+
+    def test_calc_ideal_regression_model(self):
+
+        with patch ('builtins.input',return_value='sales'):
+            self.test_instance.data = self.test_instance.load_data('docs\Advertising.csv')
+        
+        self.test_instance.X_train, self.test_instance.X_test,\
+            self.test_instance.y_train, self.test_instance.y_test = self.test_instance.preprocess()
+        self.test_instance.calc_ideal_regression_model()
+
+        
+        # Replace the following line with your actual test predictions
+        test_predictions = self.test_instance.regression_report_data['best_model'].predict(self.test_instance.X_test)
+
+        # Assertions
+        self.assertEqual(self.test_instance.regressor, True)
+        self.assertIsNotNone(self.test_instance.regression_report_data['best_model'])
+        self.assertIsNotNone(self.test_instance.regression_report_data['best_parameters'])
+        self.assertIsNotNone(self.test_instance.regression_report_data['best_score'])
+
+        # Calculate the MAE with real data
+        MAE = mean_absolute_error(self.test_instance.y_test, test_predictions)
+        self.assertIsNotNone(MAE)
 
 if __name__ == '__main__':
     unittest.main()
