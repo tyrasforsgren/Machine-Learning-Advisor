@@ -177,7 +177,7 @@ class ModelSelection:
                 self.save_model(chosen_model)
                 break
             elif choice.upper() == 'N':
-                exit()
+                exit(1)
             else:
                 print('Invalid input.')
 
@@ -293,7 +293,7 @@ class ModelSelection:
             r2score: {self.get_r2_score(model)}\n\
             best parameters: {model.best_params_}\n')
 
-    def calc_ideal_regression_model(self):
+    def calc_ideal_regression_model(self): #T
         """
         Creates different types of Regression models; LinearRegression,
         Ridge, LassoCV, ElasticNetCV and SVR. Reports information about them.
@@ -371,7 +371,7 @@ class ModelSelection:
                 self.confirm_model_choice(models[i])
                 break
 
-    def classification_report(self, model):
+    def classification_reports(self, model, show=False):
         """
         Reports information about classification model.
         Shows classification report, confusion matrix,
@@ -391,7 +391,8 @@ class ModelSelection:
         print(classification_report(y_true=self.y_test, y_pred=y_pred))
         ConfusionMatrixDisplay.from_estimator(model, self.X_test, self.y_test)
         plt.title(f'{model.estimator}')
-        plt.show()
+        if show:
+            plt.show()
 
         # Show accuracy and best parameters
         acc = round(accuracy_score(y_true=self.y_test, y_pred=y_pred), 2)
@@ -399,7 +400,7 @@ class ModelSelection:
         print('Best Parameters : ', model.best_params_, '\n')
         return acc  # Return accuracy for judging
 
-    def calc_ideal_classification_model(self):
+    def calc_ideal_classification_model(self): # T
         """
         Creates different types of Classification models; LogisticRegression,
         KNN and SVC. Reports information about them.
@@ -437,7 +438,7 @@ class ModelSelection:
         # accuracies will be added to scores and models are judged .
         scores = []
         for i, model in enumerate(models, start=0):
-            scores.append(self.classification_report(model))
+            scores.append(self.classification_reports(model))
 
         for i, model in enumerate(models, start=0):
             if max(scores) == scores[i]:
