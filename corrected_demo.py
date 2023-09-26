@@ -1,27 +1,25 @@
 from project.ModelSelectFinal import ModelSelection
 
-def run():
-    pass
 
-def reg_test():
-    reg_test = ModelSelection('docs\Advertising.csv')
+def reg_test(test):
+    test.load_data('docs\\Advertising.csv')
     # Dependant = 'sales'
 
-def clif_test():
-    clif_test = ModelSelection('docs\heart.csv')
+def clif_test(test):
+    test.load_data('docs\\heart.csv') # Relatively quickd
     # Dependant = 'target'
-    
-def dummy_test():
-    dummy = ModelSelection('docs\insurance.csv')
+    # Drop - stops upon wrong y/n
+    # Error upon choosing r instead of c
+
+def dummy_test(test):
+    test.load_data('docs\\insurance.csv')
     # Dependant = 'charges'
 
 if __name__ == '__main__':
-
-    test = ModelSelection()
-
-    test.load_data('docs\Advertising.csv')
-
-    test.initialize_model()
+    test_model = ModelSelection()
+    clif_test(test_model)
+    print(type(test_model.y))
+    # test_model.initialize_model()
 
 
 # Test for regression: (dependant value is 'sales')

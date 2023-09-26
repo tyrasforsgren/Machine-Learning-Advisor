@@ -2,24 +2,124 @@ import numpy as np
 import pandas as pd
 import sys
 import matplotlib.pyplot as plt
+from sklearn.model_selection import GridSearchCV
+
 
 
 class ModelSelection:
     """
-    Suggests an ML model to user based on input dataframe.
-    Parameters :
-        path - path to dataframe
+    ModelSelection is a class for selecting an ideal machine learning model based on data in CSV form.
 
-    Reads csv to run test on.
-    Prepares data.
-    Reads desired ML type.
-    Tries different models.
-    Shows the results of different models.
-    Suggests ideal model based on results.
-    Saves model.
+    It provides methods for data preprocessing, model training, hyperparameter tuning,
+    generating classification or regression reports and calculating ideal model based om rmse and r2_score.
+    only csv
+    Attributes
+    ----------
+    regressor : NoneType 
+    	Flag for type of model (None by default).
+    data : NoneType
+	    The dataset used the models (None by default).
+    X : NoneType 
+	    The feature matrix (None by default).
+    y : NoneType
+	    The target values (None by default).
+    X_train : NoneType
+	    The training feature matrix (None by default).
+    X_test : NoneType
+	    The testing feature matrix (None by default).
+    y_train : NoneType 
+	    The training target values (None by default).
+    y_test : NoneType
+        The testing target values
+
+    Methods
+    -------
+    preprocess():
+		Applies polynomial regression, scaling, and train/test splitting to the data.
+    grid_model():
+		Performs hyperparameter tuning using grid search.
+    classification_reports():
+		Generates metric report for classification cases.
+    regression_reports():
+		Generates metric report for regression cases.
+    load_data(path):
+		Loads data from a CSV file.
+    initialize_model():
+    	Initializes the model selection process.
+    set_values():
+		Sets feature matrix and target values from user input.
+    complete_data():
+		Checks for missing values or non-numerals(feature matrix only).
+        Offers soloutions or ends the program depending.
+    data_report():
+		Plots information about the total data.
+    choose_model():
+		Prompts the user to select a model type.
+    confirm_model_choice(chosen_model):
+		Confirms the selected model.
+    save_model(chosen_model):
+		Saves the selected model as a .joblib file.
+    get_rmse(model):
+		Calculates RMSE for a given model.
+    get_mae(model):
+		Calculates MAE for a given model.
+    get_r2_score(model):
+		Calculates r2_score for a given model.
+    regression_report(model_types):
+		Prints regression reports for a list of models.
+    calc_ideal_regression_model():
+		Selects the best regression model.
+    classification_reports(model, show=False):
+	    Generates report on one classification model.
+    calc_ideal_classification_model()
+        Selects the best classification model.
+
+    Example usage:
+    ```
+    model_selector = ModelSelection()
+    model_selector.load_data('data.csv')
+    model_selector.data_report()
+    model_selector.initialize_model()
+    ```
+
+    Note:
+    You should load data using 'load_data' and call 'initialize_model' before
+    using other methods.
+    
     """
 
     def __init__(self) -> None:
+        """
+        Initializes an instance of ModelSelection.
+        All attributes are defined outside of initialization.
+
+        Attributes
+        ----------
+        regressor : NoneType -> bool
+            defined in choose_model
+        data : NoneType -> pandas.DataFrame
+            defined in load_data
+        X : NoneType -> pandas.Series
+            defined in load_data
+        y : NoneType -> pandas.Series
+            defined in load_data
+        X_train : NoneType -> pandas.DataFrame
+            defined in initialize_model
+        X_test : NoneType -> pandas.DataFrame
+            defined in initialize_model
+        y_train : NoneType -> pandas.Series
+            defined in initialize_model
+        y_test : NoneType -> pandas.Series
+
+        Returns
+        -------
+        None
+
+        Notes:
+        Not to be confused with initialize_model. This method sets up the envrironment
+        needed for initialize_model to function.
+
+        """
         self.regressor = None
         self.data = None
         self.X = None
@@ -29,12 +129,47 @@ class ModelSelection:
         self.y_train = None
         self.y_test = None
 
-    def load_data(self, path): # T
+    def load_data(self, path:str) -> None:
+        """Load and prepare data from CSV file.
+
+        This method reads a CSV with the given path and initializes it as a pandas.DataFrame,
+        including assigning the X features and the target values. It validates that the data
+        is ready for the selection process.
+
+        Parameters
+        ----------
+        path : str
+            string representing the path to the data
+
+        Returns
+        -------
+        None
+
+        """
         self.data = pd.read_csv(path)
         self.X, self.y = self.set_values()
         self.complete_data()
 
-    def initialize_model(self): # T
+    def initialize_model(self) -> None :
+        """Initializes the model selection process under the assumption that the data has already
+        been loaded.
+
+        This method lets the user choose what model type(regression/classification) is desired,
+        performs preprocessing on the data, and begins calculations on what model is ideal.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes:
+        Not to be confused with __init__(). This model initializes a chain of events as opposed to __init__,
+        which initializes the environment those events take place.
+
+        """
         self.choose_model()
         self.X_train, self.X_test,self.y_train, self.y_test = self.preprocess()
         if self.regressor:
@@ -42,11 +177,23 @@ class ModelSelection:
         else:
             self.calc_ideal_classification_model()
 
-    def set_values(self): # T
-        """
-        Takes desired targets.
-        Checks if it is valid.
-        Saves target and features.
+    def set_values(self) -> tuple:
+        """Lets user assign target value from their CSV file.
+
+        This method splits data (pandas.DataFrame) into an X feature matrix and a Series of target values
+        based on the users input.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        tuple
+            A tuple with two elements (pandas.DataFrame, pandas.Series)
+            element one (X) represents the X feature matrix
+            element two (y) represents the target value
+
         """
         while True:
             choice = input(f'Choose dependant value from list :\n'
@@ -58,13 +205,21 @@ class ModelSelection:
             else:
                 print('Target not in column list.')
 
-    def complete_data(self) :# T
-        """
-        Checks werther data is ready for ML model.
-        Reports eventual issues.
-        Offers to remove rows with missing values.
-        Offers to convert non-numerical data.
-        Ends program if model selection has become impossible.
+    def complete_data(self) -> None: # Or exit
+        """Ensures the data is ready to be preproccessed.
+
+        This method checks for missing data, and offers so delete rows with missing data.
+        It offers to digitalize X feature matrix if there are non-numerals.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        (/exit)
+        
         """
         # If there is missing data :
         if self.data.isnull().sum().sum():
@@ -102,12 +257,27 @@ class ModelSelection:
         print('\nData ready for evaluation.')
 
     def data_report(self):
-        """
-        Visualizes information about the complete data.
-        For regression a histplot.
-        For classification a countplot.
-        Pairplot if there are only a few X features.
-        Heatmap is always shown.
+        """Plots information about the data as a whole.
+
+        This method shows various plots visualizing several aspects of the data depending
+        on what model type the data is for.
+
+        Shared plots:
+        -   heatmap
+        -   pairplot (columns < 5)
+        Regression plots:
+        -   histplot
+        Classification:
+        -   countplot
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
         """
         import seaborn as sns
 
@@ -134,11 +304,26 @@ class ModelSelection:
         plt.xticks(rotation=30)
         plt.show()
 
-    def choose_model(self): # T
-        """
-        Reads desired model type.
-        WIP : Evaluates if it is possible.
-        WIP - If impossible, offers to change model type.
+    def choose_model(self) -> None:
+        """Assigns model type (regression/classification) depending on user input.
+
+        This model evaluates the model type the user wants. If user decides on
+        regression-type, it checks if the target values are numerical, and offers
+        to digitalize them if so. Otherwise quits the program.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes:
+        The method cannot identify if a df should be used for a regression instead
+        of classification. As such a BUG can occur if user selects classification
+        when there should be a regression model.
+
         """
         while True:
             choice = input('What kind of model are you looking for ? \n'
@@ -162,13 +347,21 @@ class ModelSelection:
             else:
                 print('Invalid choice')
 
-    def confirm_model_choice(self, chosen_model): # T
-        """
-        Asks if user is happy with recommended model.
-        Parameters:
-            chosen_model - suggested model
-        OBS - chosen_model should be trained on entire df, not training data.
-        WIP : Offers to change model.
+    def confirm_model_choice(self, chosen_model:GridSearchCV) -> None:
+        """Confirms if user agrees on generated model suggestion and if they want it saved.
+        
+        If the user does not agree/does not want the suggested (trained) model to be saved,
+        the program ends.
+
+        Parameters
+        ----------
+        chosen_model : sklearn.model_selection.GridSearchCV
+            The model suggested by the program.
+        
+        Returns
+        -------
+        None
+
         """
         while True:
             choice = input('Do you agree with the model choice '
@@ -181,12 +374,20 @@ class ModelSelection:
             else:
                 print('Invalid input.')
 
-    def preprocess(self): # T
-        """
-        Preprocess for ML models.
-        Performs polynomial regression.
-        Performs train test split.
-        Performs Scaling.
+    def preprocess(self) -> None:
+        """Prepares data to be trained and tested.
+
+        This model splits the data for testing/training and performs Scaling on it.
+        If the model is a regressor, Polynomial (3rd degree) regression is also applied.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
         """
         print('Calculating...')
 
@@ -211,12 +412,20 @@ class ModelSelection:
         return X_train, X_test, y_train, y_test
 
     @staticmethod
-    def save_model(chosen_model): # T
-        """
-        Saves final model with given filename.
-        Parameters:
-            chosen_model - model that will be saved.
-        OBS - chosen_model should be trained on entire df, not training data.
+    def save_model(chosen_model:GridSearchCV) -> exit:
+        """Saves a trained model as a .joblib file.
+
+        The user chooses a filename for the model they want saved, and it gets saved.
+
+        Parameters
+        ----------
+        chosen_model : sklearn.model_selection.GridSearchCV
+            The model that will be saved  in the .joblib file
+        
+        Returns
+        -------
+            exit
+
         """
         from joblib import dump
         while True:
@@ -238,7 +447,6 @@ class ModelSelection:
             X_train - independent data to train over
             y_train - dependant value to train over
         """
-        from sklearn.model_selection import GridSearchCV
 
         grid_model = GridSearchCV(estimator=base_model,
                                   param_grid=param_grid,

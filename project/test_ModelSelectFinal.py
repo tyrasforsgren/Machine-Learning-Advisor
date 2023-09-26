@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import unittest
 import sys
-from sklearn.linear_model import LinearRegression, LogisticRegression, LassoCV
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from unittest.mock import patch, Mock
 from io import StringIO
@@ -13,7 +13,7 @@ from ModelSelectFinal import ModelSelection
 class TestModelSelection(unittest.TestCase):
     def setUp(self):
         self.test_instance = ModelSelection()
-        self.test_instance.data = pd.read_csv('docs\\testing_Advertising.csv')
+        self.test_instance.data = pd.read_csv('docs\\Advertising.csv').head(50)
         self.test_instance.X = self.test_instance.data.drop('sales',axis=1)
         self.test_instance.y = self.test_instance.data['sales']
 
@@ -21,7 +21,7 @@ class TestModelSelection(unittest.TestCase):
             self.test_instance.y_train, self.test_instance.y_test = self.test_instance.preprocess()
 
         self.reg_test_model = LinearRegression()
-        self.class_test_model = LogisticRegression() 
+        self.class_test_model = LogisticRegression()
 
     def tearDown(self) -> None:
         test_method_name = self._testMethodName

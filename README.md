@@ -19,3 +19,15 @@ See requirements.txt (generated)
     -   Added requirements.txt
     -   Added respective doc and scripts folders
 -   Improved documentation formatting according to PEP8
+
+## TODO: - outside of bugfixing
+-   make .get_metric - type methods static
+-   make .set_values static
+-   make data_report static
+-   make .preproccess static
+-   Change name of ModelSelection.classification_reports - confusing and too similar to imported method 'classification_report'
+-   Reorder class methods for clarity
+-   Put interface in complete_data within a loop - dont end program
+-   Incorporate raises instead of exit
+-   add parameters like 'degree' from polynomial regression to the method params (with defaults) to static methods for further control.
+-   train on entire dataset before saving
