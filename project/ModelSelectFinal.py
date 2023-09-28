@@ -14,7 +14,7 @@ Classes:
 Example Usage:
     model_selector = ModelSelection()
     model_selector.load_data('data.csv')
-    model_selector.data_report()
+    model_selector.data_report() # Optional
     model_selector.initialize_model()
 
 Note:
@@ -24,7 +24,8 @@ Note:
 """
 
 # TODO : The tests stopped working when I moved imports out of
-# the respective methods. To avoid redundancy/repeated code, tests should be adjusted
+# the respective methods. To avoid redundancy/repeated code, tests should
+# be adjusted
 import sys
 import numpy as np
 import pandas as pd
@@ -46,19 +47,19 @@ class ModelSelection:
     Attributes
     ----------
     regressor : NoneType
-        Flag for type of model (None by default).
+        Flag for type of model.
     data : NoneType
-            The dataset used the models (None by default).
-    X : NoneType
-            The feature matrix (None by default).
+            The dataset used the models.
+    x : NoneType
+            The feature matrix.
     y : NoneType
-            The target values (None by default).
+            The target values.
     x_train : NoneType
-            The training feature matrix (None by default).
+            The training feature matrix.
     x_test : NoneType
-            The testing feature matrix (None by default).
+            The testing feature matrix.
     y_train : NoneType
-            The training target values (None by default).
+            The training target values.
     y_test : NoneType
         The testing target values
 
@@ -76,18 +77,18 @@ class ModelSelection:
     load_data(path):
                 Loads data from a CSV file.
     initialize_model():
-        Initializes the model selection process.
+                Initializes the model selection process.
     set_values():
                 Sets feature matrix and target values from user input.
     complete_data():
-                Checks for missing values or non-numerals(feature matrix only).
-        Offers soloutions or ends the program depending.
+                Checks for missing values or non-numerals(feature matrix only),
+    and offers soloutions or ends the program depending.
     data_report():
                 Plots information about the total data.
     choose_model():
                 Prompts the user to select a model type.
     confirm_model_choice(chosen_model):
-                Confirms the selected model.
+                Confirms the selected model to be saved.
     save_model(chosen_model):
                 Saves the selected model as a .joblib file.
     get_rmse(model):
@@ -101,24 +102,11 @@ class ModelSelection:
     calc_ideal_regression_model():
                 Selects the best regression model.
     classification_reports(model, show=False):
-            Generates report on one classification model.
+                Generates report on one classification model.
     calc_ideal_classification_model()
-        Selects the best classification model.
-
-    Example usage:
-    ```
-    model_selector = ModelSelection()
-    model_selector.load_data('data.csv')
-    model_selector.data_report()
-    model_selector.initialize_model()
-    ```
-
-    Note:
-    You should load data using 'load_data' and call 'initialize_model' before
-    using other methods.
+                Selects the best classification model.
 
     """
-
     def __init__(self) -> None:
         """
         Initializes an instance of ModelSelection.
@@ -130,7 +118,7 @@ class ModelSelection:
             defined in choose_model
         data : NoneType -> pandas.DataFrame
             defined in load_data
-        X : NoneType -> pandas.Series
+        x : NoneType -> pandas.Series
             defined in load_data
         y : NoneType -> pandas.Series
             defined in load_data
@@ -153,7 +141,7 @@ class ModelSelection:
         """
         self.regressor = None
         self.data = None
-        self.X = None
+        self.x = None
         self.y = None
         self.x_train = None
         self.x_test = None
@@ -164,8 +152,8 @@ class ModelSelection:
         """Load and prepare data from CSV file.
 
         This method reads a CSV with the given path and initializes it as a
-        pandas.DataFrame, including assigning the X features and the target
-        values. It validates that the data is ready for the selection process.
+        pandas.DataFrame, including assigning the x features and the target
+        values. It validates that the data is ready for the algorithm.
 
         Parameters
         ----------
@@ -178,12 +166,12 @@ class ModelSelection:
 
         """
         self.data = pd.read_csv(path)
-        self.X, self.y = self.set_values()
+        self.x, self.y = self.set_values()
         self.complete_data()
 
     def initialize_model(self) -> None:
         """Initializes the model selection process under the assumption that the
-        data has already been loaded.
+        data has already been loaded using .load_model()
 
         This method lets the user choose what model type(regression/classification)
         is desired, performs preprocessing on the data, and begins calculations on
@@ -205,10 +193,10 @@ class ModelSelection:
         """
         self.choose_model()
 
-        self.X_train, \
-        self.X_test, \
-        self.y_train, \
-        self.y_test = self.preprocess()
+        self.x_train, \
+            self.x_test, \
+            self.y_train, \
+            self.y_test = self.preprocess()
 
         if self.regressor:
             self.calc_ideal_regression_model()
@@ -218,7 +206,7 @@ class ModelSelection:
     def set_values(self) -> tuple:
         """Lets user assign target value from their CSV file.
 
-        This method splits data (pandas.DataFrame) into an X feature
+        This method splits data (pandas.DataFrame) into an x feature
         matrix and a Series of target values based on the users input.
 
         Parameters
@@ -229,7 +217,7 @@ class ModelSelection:
         -------
         tuple
             A tuple with two elements (pandas.DataFrame, pandas.Series)
-            element one (X) represents the X feature matrix
+            element one (x) represents the x feature matrix
             element two (y) represents the target value
 
         """
@@ -238,16 +226,16 @@ class ModelSelection:
                            f'{list(self.data.columns)}\n')
             # Ensure chosen option exists.
             if choice in list(self.data.columns):
-                X = pd.DataFrame(self.data.drop(choice, axis=1))
+                x = pd.DataFrame(self.data.drop(choice, axis=1))
                 y = pd.Series(self.data[choice])
-                return X, y
+                return x, y
             print('Target not in column list.')
 
     def complete_data(self) -> None:  # Or exit program
         """Ensures the data is ready to be preproccessed.
 
-        This method checks for missing data, and offers so delete rows with missing
-        data. It offers to digitalize X feature matrix if there are non-numerals.
+        This method checks for missing data, and offers to delete rows with missing
+        data. It offers to digitalize x feature matrix if there are non-numerals.
 
         Parameters
         ----------
@@ -267,29 +255,28 @@ class ModelSelection:
                 '(all will be removed.) \n')  # TODO Specify where missing values are.
             if na_choice.upper() == 'Y':
                 print('answered yes')
-                # TODO : .dropna() for X and y to avoid target val reset.
+                # TODO : .dropna() for x and y to avoid target val reset.
                 self.data = self.data.dropna()
                 print('Incomplete rows have been deleted. \n'
                       'Dependant value has been reset, input again.\n')
-                self.X, self.y = self.set_values()
+                self.x, self.y = self.set_values()
             else:
                 print('sys exit should be reaced')
                 print('Model selection cannot be performed.')
-                exit(1) # TODO : Make interface in loop or raise error.
-                
+                exit(1)  # TODO : Make interface in loop or raise error.
+
         # If data isn't digitalized :
-        
-        for col in self.X:
-            if self.X[col].dtype == 'object':
+        for col in self.x:
+            if self.x[col].dtype == 'object':
                 while True:
                     choice = input(
-                        'X values are\'nt numerical, do you want to convert them? (y/n)\n')
+                        'x values are\'nt numerical, do you want to convert them? (y/n)\n')
                     if choice.upper() == 'Y':
-                        # Digitalize X data (dummies)
-                        num_df = self.X.select_dtypes(exclude="object")
-                        str_df = self.X.select_dtypes(include="object")
+                        # Digitalize x data (dummies)
+                        num_df = self.x.select_dtypes(exclude="object")
+                        str_df = self.x.select_dtypes(include="object")
                         str_df = pd.get_dummies(str_df, drop_first=True)
-                        self.X = pd.concat([num_df, str_df], axis=1)
+                        self.x = pd.concat([num_df, str_df], axis=1)
                         print('\nData has been digitalized '
                               'and is ready for evaluation.\n')
                         return
@@ -340,12 +327,12 @@ class ModelSelection:
             plt.title('Target Distribution')
             plt.show()
 
-        if len(list(self.X.columns)) < 5:  # Avoid giant plots
+        if len(list(self.x.columns)) < 5:  # Avoid giant plots
             sns.pairplot(data=self.data)
             plt.show()
 
-        sns.heatmap(data=self.X.corr())
-        plt.title('Correlation Between X Features')
+        sns.heatmap(data=self.x.corr())
+        plt.title('Correlation Between x Features')
         plt.xticks(rotation=30)
         plt.show()
 
@@ -373,9 +360,9 @@ class ModelSelection:
         """
         while True:
             choice = input('What kind of model are you looking for ? \n'
-                        'Regressor (r) Classifier (c)\n')
+                           'Regressor (r) Classifier (c)\n')
 
-            if 'C' == choice.upper(): # TODO : Fix potential bug^ with validation.
+            if 'C' == choice.upper():  # TODO : Fix bug^ with validation.
                 self.regressor = False
                 break
 
@@ -383,7 +370,7 @@ class ModelSelection:
 
                 if self.y.dtype == 'object':
                     print('Regression cannot be performed on data '
-                        'with object type y values.')
+                          'with object type y values.')
                     change_choice = input(
                         'Do you want a classifier model instead?\n')
                     if change_choice.upper() == 'Y':
@@ -391,7 +378,8 @@ class ModelSelection:
                         self.regressor = False
                         break
                     else:
-                        print('Conversion is needed to proceed. Return with other/altered data')
+                        print(
+                            'Conversion is needed to proceed. Return with other/altered data')
                         exit()  # TODO : Raise error with message.
                 else:
                     self.regressor = True
@@ -441,9 +429,9 @@ class ModelSelection:
         Returns
         -------
         x_train : pandas.DataFrame
-            The X feature matrix to train with.
+            The x feature matrix to train with.
         x_test : pandas.DataFrame
-            The X feature matrix to test with.
+            The x feature matrix to test with.
         y_train : pandas.Series
             The y target values to train with.
         y_test : pandas.Series
@@ -456,28 +444,27 @@ class ModelSelection:
         from sklearn.preprocessing import PolynomialFeatures, StandardScaler
         from sklearn.model_selection import train_test_split
 
-
         # Polynomial Regression
         if self.regressor:
             polynomial_converter = PolynomialFeatures(
                 degree=3, include_bias=False)
-            self.X = polynomial_converter.fit_transform(self.X)
+            self.x = polynomial_converter.fit_transform(self.x)
 
         # Splitting
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.X, self.y, test_size=0.3, random_state=101)
+        x_train, x_test, y_train, y_test = train_test_split(
+            self.x, self.y, test_size=0.3, random_state=101)
 
         # Scaling + fitting
         scaler = StandardScaler()
-        scaler.fit(X_train)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
+        scaler.fit(x_train)
+        x_train = scaler.transform(x_train)
+        x_test = scaler.transform(x_test)
 
-        return X_train, X_test, y_train, y_test
+        return x_train, x_test, y_train, y_test
 
     @staticmethod
     def save_model(chosen_model: GridSearchCV) -> exit:
-        """Saves a trained model as a .joblib file. Static.
+        """Saves a trained model as a .joblib file. @static
 
         The user chooses a filename for the model they want saved, and it gets saved.
 
@@ -491,6 +478,7 @@ class ModelSelection:
             exit
 
         """
+
         from joblib import dump
 
         while True:
@@ -504,9 +492,9 @@ class ModelSelection:
     @staticmethod
     def grid_model(base_model,
                    param_grid: dict,
-                   X_train: pd.DataFrame,
+                   x_train: pd.DataFrame,
                    y_train: pd.Series) -> GridSearchCV:
-        """Tunes hyperparameters of passed model using  GridSearhCV. Static.
+        """Tunes hyperparameters of passed model using  GridSearhCV. @static.
 
         This model uses GridSearchCV from sklearn to tune the hyper parameters of
         a passed model. I then fits the data data to the model. It uses 10 as
@@ -521,7 +509,7 @@ class ModelSelection:
         param_grid : dict
             The dictionary containing hyperparameters to tune and their options.
         x_train : pandas.DataFrame
-            The X feature training matrix, the data that will train the model.
+            The x feature training matrix, the data that will train the model.
         y_train: pandas.Series
             THe y target training values, the data that will train the mmodel.
 
@@ -537,7 +525,7 @@ class ModelSelection:
         grid_model = GridSearchCV(estimator=base_model,
                                   param_grid=param_grid,
                                   cv=10)
-        grid_model.fit(X_train, y_train)
+        grid_model.fit(x_train, y_train)
 
         return grid_model
 
@@ -556,7 +544,7 @@ class ModelSelection:
 
         """
         from sklearn.metrics import mean_squared_error
-        test_predictions = model.predict(self.X_test)
+        test_predictions = model.predict(self.x_test)
         rmse = np.sqrt(mean_squared_error(self.y_test, test_predictions))
         return rmse
 
@@ -575,7 +563,7 @@ class ModelSelection:
 
         """
         from sklearn.metrics import mean_absolute_error
-        test_predictions = model.predict(self.X_test)
+        test_predictions = model.predict(self.x_test)
         mae = mean_absolute_error(self.y_test, test_predictions)
         return mae
 
@@ -595,7 +583,7 @@ class ModelSelection:
         """
 
         # .score and r2_score gets same result
-        return model.score(self.X_test, self.y_test)
+        return model.score(self.x_test, self.y_test)
 
     def regression_report(self, model_types: list) -> None:
         """Prints a selection of metrics for every element in a list of
@@ -681,26 +669,25 @@ class ModelSelection:
             }
         }
 
-
         # Creating models through GridSearchCV
         linear_model = self.grid_model(LinearRegression(), grids['linear'],
-                                       self.X_train, self.y_train)
+                                       self.x_train, self.y_train)
         ridge_model = self.grid_model(Ridge(), grids['ridge'],
-                                      self.X_train, self.y_train)
+                                      self.x_train, self.y_train)
         lasso_model = self.grid_model(
             LassoCV(eps=0.1, n_alphas=100),
             grids['lasso'],
-            self.X_train,
+            self.x_train,
             self.y_train)
         elasticnet_model = self.grid_model(
             ElasticNetCV(l1_ratio=[.1, .5, .7, .9, .95, .99, 1], tol=0.01),
             grids['elasticnet'],
-            self.X_train,
+            self.x_train,
             self.y_train)
         svr_model = self.grid_model(
             SVR(),
             grids['svr'],
-            self.X_train,
+            self.x_train,
             self.y_train)
 
         # Reporting model information
@@ -755,17 +742,17 @@ class ModelSelection:
 
         """
         from sklearn.metrics import classification_report, \
-        ConfusionMatrixDisplay, \
-        accuracy_score
+            ConfusionMatrixDisplay, \
+            accuracy_score
         # Test the models
-        y_pred = model.predict(self.X_test)
+        y_pred = model.predict(self.x_test)
 
         # Show general classification information
         print(f'\n\nModel: {model.estimator}')
         print(classification_report(y_true=self.y_test, y_pred=y_pred))
 
         # Create confusion matrix and show if desired
-        ConfusionMatrixDisplay.from_estimator(model, self.X_test, self.y_test)
+        ConfusionMatrixDisplay.from_estimator(model, self.x_test, self.y_test)
         plt.title(f'{model.estimator}')
         if show:
             plt.show()
@@ -812,17 +799,17 @@ class ModelSelection:
         logistic_model = self.grid_model(
             LogisticRegression(),
             grids['logistic'],
-            self.X_train,
+            self.x_train,
             self.y_train)
         knn_model = self.grid_model(
             KNeighborsClassifier(),
             grids['knn'],
-            self.X_train,
+            self.x_train,
             self.y_train)
         svc_model = self.grid_model(
             SVC(),
             grids['svc'],
-            self.X_train,
+            self.x_train,
             self.y_train)
 
         models = [logistic_model, knn_model, svc_model]
@@ -830,7 +817,7 @@ class ModelSelection:
         # Collect accuracies and make suggestion based of them :
         scores = []
         for i, model in enumerate(models, start=0):
-            scores.append(self.classification_reports(model))
+            scores.append(self.classification_reports(model,show=True))
 
         for i, model in enumerate(models, start=0):
             if max(scores) == scores[i]:
