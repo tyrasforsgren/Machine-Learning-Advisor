@@ -1,33 +1,25 @@
+# Import the ModelSelection class from the project.ModelSelectFinal module
 from project.ModelSelectFinal import ModelSelection
 
-
-def reg_test(test):
+# Define a function for regression testing
+def reg_test(test): # 20secs calculation
+    # Load data from the 'Advertising.csv' file
     test.load_data('docs\\Advertising.csv')
-    # Dependant = 'sales'
+    # Specify the dependent variable as 'sales'
 
+# Define a function for classification testing
 def clif_test(test):
-    test.load_data('docs\\heart.csv') # Relatively quickd
-    # Dependant = 'target'
-    # Drop - stops upon wrong y/n
-    # Error upon choosing r instead of c
-
-def dummy_test(test):
-    test.load_data('docs\\insurance.csv')
-    # Dependant = 'charges'
+    # Load data from the 'heart.csv' file
+    test.load_data('docs\\heart.csv')
+    # Specify the dependent variable as 'target'
+    # The program stops upon incorrect user input (e.g., choosing 'r' instead of 'c')
 
 if __name__ == '__main__':
+    # Create an instance of the ModelSelection class
     test_model = ModelSelection()
-    clif_test(test_model)
-    print(type(test_model.y))
-    # test_model.initialize_model()
-
-
-# Test for regression: (dependant value is 'sales')
-#reg_test = ModelSelection('docs\Advertising.csv')
-
-# Test for classification and missing data: (dependant value is 'target')
-# class_test = ModelSelection('docs\heart.csv')
-
-# Test for dummies and regression (dependant value is 'charges')
-# OBS : This takes a very long time to run.
-# dummy_test = ModelSelection('docs\insurance.csv')
+    
+    # Choose one of the testing functions to run (e.g., dummy_test)
+    reg_test(test_model)
+    
+    # Initialize the model selection process
+    test_model.initialize_model()
