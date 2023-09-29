@@ -1,0 +1,40 @@
+# Byte-compiled / optimized Python files
+__pycache__/
+*.pyc
+*.pyo
+**/__pycache__/
+
+# Caches and logs
+logs/
+*.log
+
+# Virtual environment
+venv/
+
+# Build and distribution directories
+build/
+dist/
+__dist/
+*.egg-info/
+
+# Python cache
+*.cache/
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Editor/IDE specific files and directories
+.vscode/
+.idea/
+
+# Compiled Python files (some versions of Python, such as PyInstaller)
+*.exe
+*.dll
+*.so
+*.dylib
+
+# macOS-specific files
+.DS_Store
+
+# Windows-specific files
+Thumbs.db
